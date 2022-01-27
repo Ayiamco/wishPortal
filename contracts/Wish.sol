@@ -6,7 +6,7 @@ import "hardhat/console.sol";
 contract Wish {
     mapping(address => UserWish[]) privateWishes;
     UserWish[] publicWishes;
-    mapping(address => uint256) lastUpdated;
+    mapping(address => uint256) lastWishTime;
     uint256 randomSeed;
 
     struct UserWish {
@@ -20,15 +20,27 @@ contract Wish {
     }
 
     function makeWish(string memory _wish, bool _isPrivate) external {
+        console.log(
+            "%s last update time: %d ",
+            msg.sender,
+            lastWishTime[msg.sender]
+        );
+        require(
+            block.timestamp - lastWishTime[msg.sender] > 1 minutes ||
+                lastWishTime[msg.sender] == 0,
+            "Trial less than wait time of 1 minute"
+        );
         if (_isPrivate) {
             privateWishes[msg.sender].push(
                 UserWish(_wish, uint32(block.timestamp), 1)
             );
+            lastWishTime[msg.sender] = block.timestamp;
         } else {
             console.log("current randomSeed: %d. ", randomSeed);
             if (randomSeed > 60) {
                 console.log("updating publicWishes with seed...");
                 publicWishes.push(UserWish(_wish, uint32(block.timestamp), 0));
+                lastWishTime[msg.sender] = block.timestamp;
             }
         }
         randomSeed = (randomSeed + block.timestamp) % 100;
