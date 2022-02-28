@@ -8,14 +8,21 @@ contract Wish {
     UserWish[] publicWishes;
     mapping(address => uint256) lastWishTime;
     uint256 randomSeed;
+    event NewWish(
+        address _address,
+        string wish,
+        uint32 timeStamp,
+        uint16 _isPrivate
+    );
 
     struct UserWish {
         string wish;
         uint32 timeStamp;
         uint16 isPrivate;
+        address from;
     }
 
-    constructor() {
+    constructor() payable {
         randomSeed = block.timestamp % 100;
     }
 
@@ -32,18 +39,27 @@ contract Wish {
         );
         if (_isPrivate) {
             privateWishes[msg.sender].push(
-                UserWish(_wish, uint32(block.timestamp), 1)
+                UserWish(_wish, uint32(block.timestamp), 1, msg.sender)
             );
             lastWishTime[msg.sender] = block.timestamp;
         } else {
             console.log("current randomSeed: %d. ", randomSeed);
             if (randomSeed > 60) {
                 console.log("updating publicWishes with seed...");
-                publicWishes.push(UserWish(_wish, uint32(block.timestamp), 0));
+                publicWishes.push(
+                    UserWish(_wish, uint32(block.timestamp), 0, msg.sender)
+                );
                 lastWishTime[msg.sender] = block.timestamp;
             }
         }
         randomSeed = (randomSeed + block.timestamp) % 100;
+
+        emit NewWish(
+            msg.sender,
+            _wish,
+            uint32(block.timestamp),
+            _isPrivate ? 1 : 0
+        );
     }
 
     function getPrivateWishes() external view returns (UserWish[] memory) {

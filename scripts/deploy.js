@@ -7,7 +7,7 @@ const main = async () => {
 
   const wishContractFactory = await hre.ethers.getContractFactory("Wish");
   const wishContract = await wishContractFactory.deploy({
-    value: hre.ethers.utils.parseEther("0.1"),
+    value: hre.ethers.utils.parseEther("0.01"),
   });
   await wishContract.deployed();
 
