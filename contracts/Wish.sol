@@ -7,6 +7,7 @@ contract Wish {
     mapping(address => UserWish[]) privateWishes;
     UserWish[] publicWishes;
     mapping(address => uint256) lastWishTime;
+    mapping(string => int256) joke;
     uint256 randomSeed;
     event NewWish(
         address _address,
@@ -27,11 +28,13 @@ contract Wish {
     }
 
     function makeWish(string memory _wish, bool _isPrivate) external {
+        console.log("fname: %d");
         console.log(
             "%s last update time: %d ",
             msg.sender,
             lastWishTime[msg.sender]
         );
+
         require(
             block.timestamp - lastWishTime[msg.sender] > 1 minutes ||
                 lastWishTime[msg.sender] == 0,
