@@ -1,24 +1,31 @@
-//SPDX-License-Identifier: Unlicensed
+//SPDX-License-Identifier: Unlicense
+
 pragma solidity ^0.8.1;
 
-import "./Ownable.sol";
-import "hardhat/console.sol";
-
-contract HelloWorld is Ownable {
+contract HelloWorld {
     mapping(address => Message) blockgameMessages;
     Message[] blockgameMessagesArray;
     address blockGamesAddress;
     uint256 blockgameMessageCount;
+    address private _owner;
+
     event NewMessage(address _address, string message, uint256 messageIndex);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
+
     struct Message {
         string Message;
         uint256 CreateAt;
     }
 
-    constructor() {}
+    constructor() {
+        _owner = msg.sender;
+        emit OwnershipTransferred(address(0), _owner);
+    }
 
     function sendBlockGameMessage(string memory message) external {
-        console.log("%s is sending blockgames a message.", msg.sender);
         bytes memory messageByte = bytes(message);
         require(messageByte.length > 0, "Message cannot be empty.");
         blockgameMessagesArray.push(Message(message, block.timestamp));
@@ -27,7 +34,6 @@ contract HelloWorld is Ownable {
     }
 
     function getBlockgameMessage() public view returns (Message memory) {
-        console.log("getter address: %s", msg.sender);
         return blockgameMessages[msg.sender];
     }
 
@@ -41,5 +47,10 @@ contract HelloWorld is Ownable {
             "Only blockgames can read messages."
         );
         return blockgameMessagesArray;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == _owner);
+        _;
     }
 }

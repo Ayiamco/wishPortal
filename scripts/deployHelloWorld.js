@@ -1,7 +1,7 @@
 const main = async () => {
   const [deployer] = await hre.ethers.getSigners();
   const contractFactory = await hre.ethers.getContractFactory("HelloWorld");
-  const contract = contractFactory.deploy();
+  const contract = await contractFactory.deploy();
   await contract.deployed();
 
   console.log("Contract deployed by : ", deployer.address);
